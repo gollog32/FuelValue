@@ -459,17 +459,17 @@
             <div class="flex items-center justify-between mb-1">
               <label for="inputRadius" class="text-[11px] font-semibold text-slate-200">Search Radius (Miles)</label>
               <div class="flex items-center gap-1">
-                <input id="inputRadius" type="number" min="0.5" max="30" step="0.5" value="10" class="w-16 px-2 py-0.5 rounded bg-slate-950 border border-slate-700 text-emerald-300 font-mono-num text-xs font-bold text-right focus:outline-none focus:border-emerald-400" />
+                <input id="inputRadius" type="number" min="0.5" max="100" step="0.5" value="10" class="w-16 px-2 py-0.5 rounded bg-slate-950 border border-slate-700 text-emerald-300 font-mono-num text-xs font-bold text-right focus:outline-none focus:border-emerald-400" />
                 <span class="text-[10px] text-slate-400">mi</span>
               </div>
             </div>
-            <input id="sliderRadius" type="range" min="1" max="25" step="0.5" value="10" class="w-full accent-emerald-400 cursor-pointer h-1.5 bg-slate-800 rounded-lg" />
+            <input id="sliderRadius" type="range" min="1" max="100" step="0.5" value="10" class="w-full accent-emerald-400 cursor-pointer h-1.5 bg-slate-800 rounded-lg" />
             <div class="flex justify-between text-[9px] text-slate-400 font-mono-num mt-0.5">
               <span>1 mi</span>
-              <span>5 mi</span>
-              <span>10 mi (Default)</span>
-              <span>15 mi</span>
+              <span>10 mi (Def)</span>
               <span>25 mi</span>
+              <span>50 mi</span>
+              <span>100 mi</span>
             </div>
           </div>
         </div>
@@ -1616,10 +1616,10 @@
     }
 
     function setRadiusValue(miles) {
-      const clean = Math.max(0.5, Math.min(30, Number(miles) || 10));
+      const clean = Math.max(0.5, Math.min(100, Number(miles) || 10));
       state.radiusMiles = clean;
       document.getElementById("inputRadius").value = clean;
-      document.getElementById("sliderRadius").value = Math.min(25, clean);
+      document.getElementById("sliderRadius").value = Math.min(100, clean);
       renderUI();
     }
 
@@ -1660,7 +1660,7 @@
       const statusMsg = document.getElementById("apiFetchStatusMsg");
       const badgeEl = document.getElementById("dataSourceBadge");
       const apiKey = (document.getElementById("inputGoogleApiKey").value || "").trim();
-      const radiusMeters = Math.min(50000, Math.round(state.radiusMiles * 1609.344));
+      const radiusMeters = Math.min(160934, Math.round(state.radiusMiles * 1609.344));
 
       // 1. If user provided a Google Maps Platform API Key, query Places API (New) fuelOptions directly
       if (apiKey) {
@@ -1682,7 +1682,7 @@
                 locationRestriction: {
                   circle: {
                     center: { latitude: state.gpsLat, longitude: state.gpsLng },
-                    radius: radiusMeters
+                    radius: Math.min(50000, radiusMeters)
                   }
                 }
               })
@@ -1741,7 +1741,7 @@
       // 2. Keyless Live Overpass API Station Discovery around current GPS coordinates
       statusMsg.textContent = "Scanning nearby fuel stations via live Overpass GPS query...";
       try {
-        const query = `[out:json][timeout:10];node["amenity"="fuel"](around:${Math.min(25000, radiusMeters)},${state.gpsLat},${state.gpsLng});out body 18;`;
+        const query = `[out:json][timeout:15];node["amenity"="fuel"](around:${Math.min(160934, radiusMeters)},${state.gpsLat},${state.gpsLng});out body 30;`;
         const resp = await fetch(
           "https://overpass-api.de/api/interpreter?data=" + encodeURIComponent(query)
         );
@@ -1842,8 +1842,8 @@
       document.getElementById("inputRadius").addEventListener("input", (e) => {
         const val = parseFloat(e.target.value);
         if (!Number.isNaN(val) && val >= 0.5) {
-          state.radiusMiles = Math.min(30, val);
-          document.getElementById("sliderRadius").value = Math.min(25, state.radiusMiles);
+          state.radiusMiles = Math.min(100, val);
+          document.getElementById("sliderRadius").value = Math.min(100, state.radiusMiles);
           renderUI();
         }
       });
