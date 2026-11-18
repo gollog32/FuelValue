@@ -472,6 +472,25 @@
               <span>100 mi</span>
             </div>
           </div>
+
+          <!-- Max Stations to Return Entry Box & Slider -->
+          <div class="pt-1.5 border-t border-slate-800/80">
+            <div class="flex items-center justify-between mb-1">
+              <label for="inputMaxStations" class="text-[11px] font-semibold text-slate-200">Stations to Return (Max)</label>
+              <div class="flex items-center gap-1">
+                <input id="inputMaxStations" type="number" min="1" max="50" step="1" value="15" class="w-16 px-2 py-0.5 rounded bg-slate-950 border border-slate-700 text-sky-300 font-mono-num text-xs font-bold text-right focus:outline-none focus:border-sky-400" />
+                <span class="text-[10px] text-slate-400">stns</span>
+              </div>
+            </div>
+            <input id="sliderMaxStations" type="range" min="1" max="50" step="1" value="15" class="w-full accent-sky-400 cursor-pointer h-1.5 bg-slate-800 rounded-lg" />
+            <div class="flex justify-between text-[9px] text-slate-400 font-mono-num mt-0.5">
+              <span>Top 1</span>
+              <span>5</span>
+              <span>15 (Def)</span>
+              <span>25</span>
+              <span>50 max</span>
+            </div>
+          </div>
         </div>
 
         <!-- Fuel Grade Selector -->
@@ -856,6 +875,7 @@
       gpsLng: DEFAULT_ORIGIN.lng,
       gpsLabel: DEFAULT_ORIGIN.label,
       radiusMiles: 10.0,
+      maxStations: 15,
       selectedGrade: "regular", // 'regular' | 'midgrade' | 'premium' | 'diesel'
       mpg: 28.0,
       fillGallons: 14.0,
@@ -1024,7 +1044,8 @@
         evaluated.sort((a, b) => a.totalNetCost - b.totalNetCost);
       }
 
-      state.rankedStations = evaluated;
+      const maxLimit = Math.max(1, Math.min(50, Math.round(Number(state.maxStations) || 15)));
+      state.rankedStations = evaluated.slice(0, maxLimit);
 
       // Keep selectedStationId valid; default to #1 Best Value station
       const stillExists = state.rankedStations.find(
@@ -1678,7 +1699,7 @@
               },
               body: JSON.stringify({
                 includedTypes: ["gas_station"],
-                maxResultCount: 15,
+                maxResultCount: Math.max(1, Math.min(20, Math.round(Number(state.maxStations) || 15))),
                 locationRestriction: {
                   circle: {
                     center: { latitude: state.gpsLat, longitude: state.gpsLng },
@@ -1741,14 +1762,15 @@
       // 2. Keyless Live Overpass API Station Discovery around current GPS coordinates
       statusMsg.textContent = "Scanning nearby fuel stations via live Overpass GPS query...";
       try {
-        const query = `[out:json][timeout:15];node["amenity"="fuel"](around:${Math.min(160934, radiusMeters)},${state.gpsLat},${state.gpsLng});out body 30;`;
+        const reqLimit = Math.max(1, Math.min(50, Math.round(Number(state.maxStations) || 15)));
+        const query = `[out:json][timeout:15];node["amenity"="fuel"](around:${Math.min(160934, radiusMeters)},${state.gpsLat},${state.gpsLng});out body ${reqLimit};`;
         const resp = await fetch(
           "https://overpass-api.de/api/interpreter?data=" + encodeURIComponent(query)
         );
         if (!resp.ok) throw new Error("Overpass HTTP " + resp.status);
         const data = await resp.json();
         if (data.elements && data.elements.length > 0) {
-          const discovered = data.elements.slice(0, 15).map((el, idx) => {
+          const discovered = data.elements.slice(0, reqLimit).map((el, idx) => {
             const tags = el.tags || {};
             const nameStr = tags.name || tags.brand || ("Fuel Station #" + (idx + 1));
             const street = [tags["addr:housenumber"], tags["addr:street"], tags["addr:city"]]
@@ -1852,6 +1874,24 @@
         if (!Number.isNaN(val)) {
           state.radiusMiles = val;
           document.getElementById("inputRadius").value = val;
+          renderUI();
+        }
+      });
+
+      // Max Stations to Return Input & Slider Synchronization (Recalculates on the fly)
+      document.getElementById("inputMaxStations").addEventListener("input", (e) => {
+        const val = parseInt(e.target.value, 10);
+        if (!Number.isNaN(val) && val >= 1) {
+          state.maxStations = Math.min(50, val);
+          document.getElementById("sliderMaxStations").value = state.maxStations;
+          renderUI();
+        }
+      });
+      document.getElementById("sliderMaxStations").addEventListener("input", (e) => {
+        const val = parseInt(e.target.value, 10);
+        if (!Number.isNaN(val) && val >= 1) {
+          state.maxStations = val;
+          document.getElementById("inputMaxStations").value = val;
           renderUI();
         }
       });
