@@ -1,0 +1,26 @@
+{
+  "name": "FuelValue GPS — True-Savings Fuel Finder",
+  "short_name": "FuelValue",
+  "description": "Single-screen Google Maps fuel finder that ranks stations from best value to least by accounting for round-trip mileage, vehicle MPG, and multi-grade fuel prices.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#090d16",
+  "theme_color": "#0f172a",
+  "categories": ["navigation", "utilities", "travel"],
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='42' fill='%230f172a'/%3E%3Crect x='12' y='12' width='168' height='168' rx='34' fill='none' stroke='%2310b981' stroke-width='4' stroke-opacity='0.45'/%3E%3Cpath d='M52 152h64M62 152V56a12 12 0 0112-12h28a12 12 0 0112 12v96m0-60h12a12 12 0 0112 12v24a9 9 0 0018 0V78l-18-18' fill='none' stroke='%2310b981' stroke-width='10' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='88' cy='76' r='12' fill='%2338bdf8'/%3E%3C/svg%3E",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='112' fill='%230f172a'/%3E%3Crect x='32' y='32' width='448' height='448' rx='90' fill='none' stroke='%2310b981' stroke-width='10' stroke-opacity='0.45'/%3E%3Cpath d='M138 405h170M165 405V150a32 32 0 0132-32h75a32 32 0 0132 32v255m0-160h32a32 32 0 0132 32v64a24 24 0 0048 0V208l-48-48' fill='none' stroke='%2310b981' stroke-width='26' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='235' cy='202' r='32' fill='%2338bdf8'/%3E%3C/svg%3E",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
